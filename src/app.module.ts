@@ -8,6 +8,7 @@ import { UserController } from './components/user/user.controller';
 import { UserModule } from './components/user/user.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationModule } from './components/notification/notification.module';
+import { TodosModule } from './components/todos/todos.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { NotificationModule } from './components/notification/notification.modul
     PrismaModule,
     EventEmitterModule.forRoot(),
     NotificationModule,
+    TodosModule,
   ],
   controllers: [AppController, UserController],
   providers: [AppService],
