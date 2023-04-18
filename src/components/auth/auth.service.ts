@@ -9,6 +9,7 @@ import * as argon from 'argon2';
 import { SomethingWentWrongException } from 'src/utils/custom.exception';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private eventEmitter: EventEmitter2,
   ) {}
   async signup(data: SignUpDto) {
     const hash = await argon.hash(data.password);
@@ -61,6 +63,10 @@ export class AuthService {
           'Invalid credentials',
         );
       }
+      // Emit user.login event
+      this.eventEmitter.emit('user.login', {
+        user,
+      });
       return this.generateResponse(user);
     } catch (error) {
       throw new SomethingWentWrongException();

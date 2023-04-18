@@ -6,6 +6,8 @@ import { PrismaModule } from './components/prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserController } from './components/user/user.controller';
 import { UserModule } from './components/user/user.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NotificationModule } from './components/notification/notification.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { UserModule } from './components/user/user.module';
     AuthModule,
     UserModule,
     PrismaModule,
+    EventEmitterModule.forRoot(),
+    NotificationModule,
   ],
   controllers: [AppController, UserController],
   providers: [AppService],
