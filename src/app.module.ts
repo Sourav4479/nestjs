@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './components/auth/auth.module';
@@ -9,6 +9,9 @@ import { UserModule } from './components/user/user.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationModule } from './components/notification/notification.module';
 import { TodosModule } from './components/todos/todos.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './components/auth/guard/roles.guard';
+import { SessionMiddleware } from './middleware/session.middleware';
 
 @Module({
   imports: [
@@ -21,6 +24,16 @@ import { TodosModule } from './components/todos/todos.module';
     TodosModule,
   ],
   controllers: [AppController, UserController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SessionMiddleware).forRoutes('*');
+  }
+}

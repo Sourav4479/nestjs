@@ -1,7 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/components/prisma/prisma.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -33,9 +30,7 @@ export class AuthService {
       return this.generateResponse(user);
     } catch (error) {
       if (error.code === 'P2002') {
-        throw new ForbiddenException(
-          'Email already in use',
-        );
+        throw new ForbiddenException('Email already in use');
       } else {
         throw new SomethingWentWrongException();
       }
@@ -43,25 +38,17 @@ export class AuthService {
   }
   async signin(data: SignInDto) {
     try {
-      const user =
-        await this.prisma.user.findUnique({
-          where: {
-            email: data.email,
-          },
-        });
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: data.email,
+        },
+      });
       if (!user) {
-        throw new ForbiddenException(
-          'Invalid credentials',
-        );
+        throw new ForbiddenException('Invalid credentials');
       }
-      const valid = await argon.verify(
-        user.hash,
-        data.password,
-      );
+      const valid = await argon.verify(user.hash, data.password);
       if (!valid) {
-        throw new ForbiddenException(
-          'Invalid credentials',
-        );
+        throw new ForbiddenException('Invalid credentials');
       }
       // Emit user.login event
       this.eventEmitter.emit('user.login', {
@@ -72,22 +59,18 @@ export class AuthService {
       throw new SomethingWentWrongException();
     }
   }
-  async generateResponse(
-    user: any,
-  ): Promise<{ access_token: string }> {
+  async generateResponse(user: any): Promise<{ access_token: string }> {
     const payload = {
       sub: user.id,
       email: user.email,
       name: user.name,
+      roles: ['admin'],
     };
     const secret = this.config.get('JWT_SECRET');
-    const token = await this.jwt.signAsync(
-      payload,
-      {
-        expiresIn: '60m',
-        secret,
-      },
-    );
+    const token = await this.jwt.signAsync(payload, {
+      expiresIn: '60m',
+      secret,
+    });
     return {
       access_token: token,
     };

@@ -9,7 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { Roles } from '../auth/decorator/roles.decorator';
+import { Role } from '../auth/enums/role.enum';
 import { JwtGuard } from '../auth/guard/jwt.guard';
+import { RolesGuard } from '../auth/guard/roles.guard';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { TodosService } from './todos.service';
@@ -17,15 +20,12 @@ import { TodosService } from './todos.service';
 @UseGuards(JwtGuard)
 @Controller('todos')
 export class TodosController {
-  constructor(
-    private todoService: TodosService,
-  ) {}
+  constructor(private todoService: TodosService) {}
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
   @Post('create')
-  createTodo(
-    @Req() req: Request,
-    @Body() body: CreateTodoDto,
-  ) {
+  createTodo(@Req() req: Request, @Body() body: CreateTodoDto) {
     const payload = {
       title: body.title,
       user: req.user,
