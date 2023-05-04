@@ -1,13 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/components/prisma/prisma.service';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as argon from 'argon2';
 import { SomethingWentWrongException } from 'src/utils/custom.exception';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-
+import { Cache } from 'cache-manager';
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,6 +16,7 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
     private eventEmitter: EventEmitter2,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   async signup(data: SignUpDto) {
     const hash = await argon.hash(data.password);
@@ -50,11 +52,12 @@ export class AuthService {
       if (!valid) {
         throw new ForbiddenException('Invalid credentials');
       }
-      // Emit user.login event
-      this.eventEmitter.emit('user.login', {
-        user,
-      });
-      return this.generateResponse(user);
+
+      // await this.cacheManager.set('current_user', JSON.stringify(user), 43200000); // ttl 12 hr
+      // // Emit user.login event
+      // this.eventEmitter.emit('user.login', 'current_user');
+      const response = await this.generateResponse(user);
+      return response;
     } catch (error) {
       throw new SomethingWentWrongException();
     }
@@ -73,6 +76,7 @@ export class AuthService {
     });
     return {
       access_token: token,
+      ...payload,
     };
   }
 }

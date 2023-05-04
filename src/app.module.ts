@@ -32,8 +32,4 @@ import { SessionMiddleware } from './middleware/session.middleware';
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SessionMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}
