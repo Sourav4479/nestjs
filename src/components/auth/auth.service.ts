@@ -77,7 +77,7 @@ export class AuthService {
     return {
       access_token: token,
       ...payload,
-      name: 'Sourav',
+      name: 'Prakash',
     };
   }
 }
