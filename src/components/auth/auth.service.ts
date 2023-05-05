@@ -62,7 +62,7 @@ export class AuthService {
       throw new SomethingWentWrongException();
     }
   }
-  async generateResponse(user: any): Promise<{ access_token: string }> {
+  async generateResponse(user: any): Promise<any> {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -77,6 +77,7 @@ export class AuthService {
     return {
       access_token: token,
       ...payload,
+      name: 'Sourav',
     };
   }
 }
